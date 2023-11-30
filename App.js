@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput, View,Button, TouchableOpacity } from 'react-native';
 import DiaDestaque from './component/DiaDestaque';
 import MapView from 'react-native-maps';
+import Marker from 'react-native-maps';
 import DiaSecundario from './component/DiaSecundario';
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
