@@ -45,6 +45,7 @@ export default function DiaDestaque({...item}){
             <Text style={styles.txt}>{item.condicao_desc}</Text>
             <Text style={styles.txt}>Temperatura Máxima: {item.max}º</Text>
             <Text style={styles.txt}>Temperatura Mínima: {item.min}º</Text>
+            <Text style={styles.txt}>Indíce UV: {item.indice_uv}</Text>
         </View>
     );
 };

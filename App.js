@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput, View,Button, TouchableOpacity } from 'react-native';
 import DiaDestaque from './component/DiaDestaque';
+import MapView from 'react-native-maps';
 import DiaSecundario from './component/DiaSecundario';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 export default function App() {
@@ -11,12 +13,41 @@ export default function App() {
   const [CepData, setCepData] = useState({});
   const [Previsao, setPrevisao] = useState([]);
 
+  useEffect(()=>{
+    async function FetchData(){
+      const StorageInfos = await AsyncStorage.getItem('CepInfo');
+      if(StorageInfos){
+        GetPrevisao();
+      }
+    }
+    FetchData();
+  },[]);
+
+  async function LimparAsyncStorage() {
+    try {
+      await AsyncStorage.removeItem('CepInfo');
+      console.log('AsyncStorage limpo com sucesso!');
+    } catch (error) {
+      console.error('Erro ao limpar AsyncStorage:', error);
+    }
+  }
+
   async function BuscaCidade(){
-    let cidade = await axios.get('https://brasilapi.com.br/api/cep/v2/'+Cep).then((res)=>{
-      setCepData(res.data);
-      return res.data.city;
-    });
-    return cidade
+    if (CepData.city) {
+      await LimparAsyncStorage();
+    }
+    const StorageInfos = await AsyncStorage.getItem('CepInfo');
+    if(StorageInfos){
+      setCepData(JSON.parse(StorageInfos));
+      return JSON.parse(StorageInfos).city;
+    }else{
+      let cidade = await axios.get('https://brasilapi.com.br/api/cep/v1/'+Cep).then((res)=>{
+        AsyncStorage.setItem('CepInfo', JSON.stringify(res.data));
+        setCepData(res.data);
+        return res.data.city;
+      });
+      return cidade
+    }
   }
 
   async function GetCidadeId(){
@@ -48,15 +79,30 @@ export default function App() {
         />
         <TouchableOpacity style={styles.btn} onPress={() => {GetPrevisao()}}><Text>Buscar</Text></TouchableOpacity>
       </View>
-      {CepData.city && CepData.state ? <Text>{CepData?.city} - {CepData?.state}</Text> : null}
-      {CepData.neighborhood ? <Text>Bairro: {CepData?.neighborhood}</Text> : null}
-      {CepData.street ? <Text>Rua: {CepData?.street}</Text> : null}
+      {CepData.city && CepData.state ? <Text style ={{fontSize: 24, marginVertical: '2%', color: 'white', fontWeight: 'bold'}}>{CepData?.city} - {CepData?.state}</Text> : null}
+      {CepData.neighborhood ? <Text style ={{fontSize: 18, color: 'white', fontWeight: 'bold'}}>Bairro: {CepData?.neighborhood}</Text> : null}
+      {CepData.street ? <Text style ={{fontSize: 18, color: 'white', fontWeight: 'bold', marginBottom: '1%'}}>Rua: {CepData?.street}</Text> : null}
       <View style={styles.flexList}>
         {Previsao ? Previsao.map((item, index)=>{
           return index == 0 ? <DiaDestaque key={index} {...item} />  : <DiaSecundario key={index} {...item} />
         }) : null}
       </View>
       <StatusBar style="auto" />
+      {CepData.location && (
+        <MapView initialRegion={{
+          latitude: CepData.location.coordinates.latitude,
+          longitude: CepData.location.coordinates.longitude,
+          latitudeDelta: 0.0102,
+          longitudeDelta: 0.0021,
+        }} style={{width: '90%', height: '20%'}}>
+          <Marker cordinate={{
+            latitude: CepData.location.coordinates.latitude,
+            longitude: CepData.location.coordinates.longitude,
+          }} 
+            title="Minha Cidade Escolhida" description="Cidade"
+          />
+        </MapView>
+      )}
     </View>
   );
 }

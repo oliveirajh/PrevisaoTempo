@@ -47,13 +47,14 @@ export default function DiaSecundario({...item}){
             <Text style={styles.txt}>{item.condicao_desc}</Text>
             <Text style={styles.txt}>Temp Máx: {item.max}º</Text>
             <Text style={styles.txt}>Temp Mín: {item.min}º</Text>
+            <Text style={styles.txt}>Indíce UV: {item.indice_uv}</Text>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: '3%',
+    padding: '2%',
     alignContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
