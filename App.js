@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput, View,Button, TouchableOpacity } from 'react-native';
 import DiaDestaque from './component/DiaDestaque';
 import MapView from 'react-native-maps';
+import { Marker } from 'react-native-maps';
 import DiaSecundario from './component/DiaSecundario';
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -41,7 +42,7 @@ export default function App() {
       setCepData(JSON.parse(StorageInfos));
       return JSON.parse(StorageInfos).city;
     }else{
-      let cidade = await axios.get('https://brasilapi.com.br/api/cep/v1/'+Cep).then((res)=>{
+      let cidade = await axios.get('https://brasilapi.com.br/api/cep/v2/'+Cep).then((res)=>{
         AsyncStorage.setItem('CepInfo', JSON.stringify(res.data));
         setCepData(res.data);
         return res.data.city;
@@ -93,9 +94,9 @@ export default function App() {
           latitude: CepData.location.coordinates.latitude,
           longitude: CepData.location.coordinates.longitude,
           latitudeDelta: 0.0102,
-          longitudeDelta: 0.0021,
+          longitudeDelta: 0.0031,
         }} style={{width: '90%', height: '20%'}}>
-          <Marker cordinate={{
+          <Marker coordinate={{
             latitude: CepData.location.coordinates.latitude,
             longitude: CepData.location.coordinates.longitude,
           }} 
